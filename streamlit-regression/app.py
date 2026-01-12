@@ -1,9 +1,17 @@
 import streamlit as st
 import joblib
 import pandas as pd
+import os
+import warnings
+from sklearn.exceptions import InconsistentVersionWarning
 
-model = joblib.load("house_price_model.pkl")
-columns = joblib.load("feature_columns.pkl")
+warnings.filterwarnings("ignore", category=InconsistentVersionWarning)
+
+model_path = os.path.join(os.path.dirname(__file__), "house_price_model.pkl")
+columns_path = os.path.join(os.path.dirname(__file__), "feature_columns.pkl")
+
+model = joblib.load(model_path)
+columns = joblib.load(columns_path)
 
 st.title("Predict House Price")
 
@@ -61,6 +69,7 @@ selected_location = st.selectbox(
 inputs["Neighborhood"] = neighborhood_mapping[selected_location]
 
 df = pd.DataFrame([inputs])
+df = df[columns]  # Ensure columns match the model's expected order
 prediction = model.predict(df)[0]
 
 st.success(f"💰 Prediksi Harga Rumah: {prediction:,.2f}")
